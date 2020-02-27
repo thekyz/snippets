@@ -1,27 +1,18 @@
-genrule(
+exports_files([
+    "templates/BUILD.template",
+    "gen_build_files.py",
+])
+
+filegroup(
     name = "build",
     srcs = [
-        # apps
-        "//app1:lib.json",
-        "//app2:lib.json",
+        "//app1:gen_build",
+        "//app2:gen_build",
         # libs
-        "//liba:lib.json",
-        "//libb:lib.json",
-        "//libc:lib.json",
-        "//libd:lib.json",
-        "//libe:lib.json",
+        "//liba:gen_build",
+        "//libb:gen_build",
+        "//libc:gen_build",
+        "//libd:gen_build",
+        "//libe:gen_build",
     ],
-    outs = [
-        "app1/BUILD",
-        "app2/BUILD",
-
-        "liba/BUILD",
-        "libb/BUILD",
-        "libc/BUILD",
-        "libd/BUILD",
-        "libe/BUILD",
-    ],
-    cmd = """
-        touch $(OUTS)
-    """,
 )
