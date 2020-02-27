@@ -1,0 +1,12 @@
+{
+    "name": "liba",
+    "deps": [
+        "libb"
+    ],
+    "sources": [
+        "a.c"
+    ],
+    "export": [
+        "a.h"
+    ]
+}

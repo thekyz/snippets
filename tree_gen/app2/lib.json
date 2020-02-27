@@ -1,0 +1,10 @@
+{
+    "name": "app2",
+    "binary": true,
+    "deps": [
+        "liba"
+    ],
+    "sources": [
+        "2.c"
+    ]
+}

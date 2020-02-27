@@ -1,0 +1,24 @@
+exports_files(["lib.json"])
+
+{% if binary %}
+cc_binary(
+{% else %}
+cc_library(
+{% endif %}
+    name = "{{ name }}",
+    srcs = [
+    {% for src in sources %}
+        "{{ src }}",
+    {% endfor %}
+    ],
+    headers = [
+    {% for exp in export %}
+        "{{ exp }}",
+    {% endfor %}
+    ],
+    deps = [
+    {% for dep in deps %}
+        "{{ dep }}",
+    {% endfor %}
+    ],
+)

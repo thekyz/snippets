@@ -1,0 +1,9 @@
+{
+    "name": "libe",
+    "sources": [
+        "e.c"
+    ],
+    "export": [
+        "e.h"
+    ]
+}

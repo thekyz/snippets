@@ -1,0 +1,10 @@
+{
+    "name": "libb",
+    "sources": [
+        "b.c"
+    ],
+    "export": [
+        "b.h"
+    ]
+}
+

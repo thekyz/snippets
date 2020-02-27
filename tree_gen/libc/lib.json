@@ -1,0 +1,13 @@
+{
+    "name": "libc",
+    "deps": [
+        "libd"
+    ],
+    "sources": [
+        "c.c"
+    ],
+    "export": [
+        "c.h"
+    ]
+}
+

@@ -1,0 +1,10 @@
+{
+    "name": "app1",
+    "binary": true,
+    "deps": [
+        "libc"
+    ],
+    "sources": [
+        "1.c"
+    ]
+}
