@@ -2,9 +2,10 @@
 
 void runlib() {
 #ifdef feature1
-  std::cout << "Building lib with feature 1!\n";
   #ifdef feature2
   std::cout << "Building lib with feature 1 and feature 2!\n";
+  #else
+  std::cout << "Building lib with feature 1!\n";
   #endif
 #elif feature2
   std::cout << "Building lib with feature 2!\n";
