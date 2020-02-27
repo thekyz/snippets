@@ -19,6 +19,12 @@ cc_binary(
     deps = [":lib"],
 )
 
+cc_binary(
+    name = "app_no_feat",
+    srcs = ["main.cc"],
+    deps = [":lib"],
+)
+
 # To see what this does, try "$ bazel run //:app_with_feature1and2".
 cc_binary(
     name = "app_with_feature1and2",

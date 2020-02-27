@@ -1,15 +1,10 @@
 def _copt_transition_impl(settings, attr):
-    # settings provides read access to existing flags. But
-    # this transition doesn't need to read any flags.
-    return {"//custom_settings:mycopts": attr.set_features}
+    print(settings["//custom_settings:mycopts"])
+    return {"//custom_settings:mycopts": attr.set_features + settings["//custom_settings:mycopts"]}
 
-# This defines a Starlark transition and which flags it reads and
-# writes. In this case we don't need to read any flags - we
-# universally set --/custom_settings:mycopts according to whatever
-# is set in the owning rule's "set_features" attribute.
 _copt_transition = transition(
     implementation = _copt_transition_impl,
-    inputs = [],
+    inputs = ["//custom_settings:mycopts"],
     outputs = ["//custom_settings:mycopts"],
 )
 
@@ -49,18 +44,7 @@ transition_rule = rule(
     attrs = {
         # This is where the user can set the feature they want.
         "set_features": attr.string_list(default = ["unset"]),
-        # This is the cc_binary whose deps will select() on that feature.
-        # Note specificaly how it's configured with _copt_transition, which
-        # ensures that setting propagates down the graph.
         "actual_binary": attr.label(cfg = _copt_transition),
-        # This is a stock Bazel requirement for any rule that uses Starlark
-        # transitions. It's okay to copy the below verbatim for all such rules.
-        #
-        # The purpose of this requirement is to give the ability to restrict
-        # which packages can invoke these rules, since Starlark transitions
-        # make much larger graphs possible that can have memory and performance
-        # consequences for your build. The whitelist defaults to "everything".
-        # But you can redefine it more strictly if you feel that's prudent.
         "_whitelist_function_transition": attr.label(
             default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
         ),
@@ -76,7 +60,7 @@ transition_rule = rule(
 # The result is a wrapper over cc_binary that "magically" gives it a new
 # feature-setting attribute. The only difference for a BUILD user is they need
 # to load() this at the top of the BUILD file.
-def cc_binary(name, set_features = None, **kwargs):
+def cc_binary(name, set_features = [], **kwargs):
     cc_binary_name = name + "_native_binary"
     transition_rule(
         name = name,
