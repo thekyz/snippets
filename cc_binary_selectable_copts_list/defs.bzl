@@ -62,7 +62,7 @@ binary_transition_rule = rule(
     implementation = _binary_transition_rule_impl,
     attrs = {
         # This is where the user can set the feature they want.
-        "set_features": attr.string_list(default = ["unset"]),
+        "set_features": attr.string_list(default = []),
         "actual_binary": attr.label(cfg = _binary_copt_transition),
         "_whitelist_function_transition": attr.label(
             default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
@@ -76,7 +76,7 @@ library_transition_rule = rule(
     implementation = _library_transition_rule_impl,
     attrs = {
         # This is where the user can set the feature they want.
-        "capabilities": attr.string_list(default = ["unset"]),
+        "capabilities": attr.string_list(default = []),
         "actual_library": attr.label(cfg = _library_copt_transition),
         "_whitelist_function_transition": attr.label(
             default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
