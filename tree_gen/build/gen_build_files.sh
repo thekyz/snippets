@@ -13,5 +13,7 @@ echo ">>> unsandboxing ..."
 for f in bazel-bin/**/BUILD.gen; do
     _basedir=$(dirname "${f}")
     _basename=${_basedir#bazel-bin/}/BUILD
-    cp -vf "${f}" "${_basename}"
+
+    # shellcheck disable=SC2015
+    rsync -ci -h "${f}" "${_basename}" | grep '>' > /dev/null && echo "  -> ${_basename}" || true
 done
