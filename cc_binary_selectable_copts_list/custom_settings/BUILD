@@ -14,3 +14,8 @@ config_setting(
     name = "feature2",
     flag_values = {":mycopts": "feature2"},
 )
+
+config_setting(
+    name = "feature3",
+    flag_values = {":mycopts": "feature3"},
+)
