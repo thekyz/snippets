@@ -1,7 +1,8 @@
 #include <stdio.h>
 
-void main()
+int main()
 {
     printf("app2\n");
+    return 0;
 }
 
