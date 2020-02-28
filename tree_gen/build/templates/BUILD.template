@@ -1,6 +1,13 @@
 load("//build:gen.bzl", "gen_build")
-gen_build()
-
+gen_build(
+{%- if deps %}
+    deps = [
+  {%- for dep in deps %}
+        "//{{ dep }}:gen_build",
+  {%- endfor %}
+    ],
+{%- endif %}
+)
 {% if binary %}
 cc_binary(
 {%- else %}

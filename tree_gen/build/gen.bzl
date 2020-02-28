@@ -1,7 +1,7 @@
-def gen_build(**kwargs):
+def gen_build(deps=[], **kwargs):
     native.genrule(
         name = "gen_build",
-        srcs = [
+        srcs = deps + [
             "//build:templates/BUILD.template",
             "lib.json",
         ],
