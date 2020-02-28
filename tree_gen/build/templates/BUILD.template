@@ -1,19 +1,5 @@
-genrule(
-    name = "gen_build",
-    srcs = [
-        "//build:templates/BUILD.template",
-        "lib.json",
-    ],
-    tools = [
-        "//build:gen_build_files.py",
-    ],
-    outs = [
-        "BUILD",
-    ],
-    cmd = """
-        python3 $(location //build:gen_build_files.py) $(location //build:templates/BUILD.template) $(location lib.json) $@
-    """,
-)
+load("//build:gen.bzl", "gen_build")
+gen_build()
 
 {% if binary %}
 cc_binary(
@@ -22,20 +8,23 @@ cc_library(
 {%- endif %}
     name = "{{ name }}",
     srcs = [
-    {%- for src in sources %}
+  {%- for src in sources %}
         "{{ src }}",
-    {%- endfor %}
-    {%- if not binary %}
+  {%- endfor %}
+  {%- if not binary %}
     ],
     hdrs = [
-    {%- endif %}
-    {%- for exp in export %}
+  {%- endif %}
+  {%- for exp in export %}
         "{{ exp }}",
-    {%- endfor %}
+  {%- endfor %}
     ],
+  {% if deps %}
     deps = [
     {%- for dep in deps %}
-        "{{ dep }}",
+        "//{{ dep }}",
     {%- endfor %}
     ],
+  {% endif %}
+    visibility = ["//visibility:public"],
 )
