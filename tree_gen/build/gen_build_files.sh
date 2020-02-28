@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+git update-index --assume-unchanged lib*/BUILD app*/BUILD
+
 echo ">>> generating BUILD files ..."
 bazel build //build
 
