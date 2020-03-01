@@ -2,6 +2,7 @@
     "name": "app1",
     "binary": true,
     "deps": [
+        "libb",
         "libc"
     ],
     "sources": [
