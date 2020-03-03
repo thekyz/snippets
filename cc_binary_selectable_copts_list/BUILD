@@ -45,6 +45,7 @@ cc_library(
     name = "lib",
     srcs = ["lib.cc"],
     capabilities = ["feature1", "feature2"],
+    deps = ["//import:protobuf"],
     copts = [] +
         select({"//custom_settings:feature1": ["-Dfeature1"], "//conditions:default": [] }) +
         select({"//custom_settings:feature2": ["-Dfeature2"], "//conditions:default": [] }) +
