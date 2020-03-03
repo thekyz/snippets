@@ -51,7 +51,7 @@ def _library_transition_rule_impl(ctx):
     actual_library = ctx.attr.actual_library[0]
     libraries_to_link = actual_library[CcInfo].linking_context.libraries_to_link.to_list()
     so_file = libraries_to_link[1].dynamic_library
-    new_so_file = ctx.actions.declare_file(so_file.short_path)
+    new_so_file = ctx.actions.declare_file("import/libprotobuf.so")
     print("Creating action to copy {} to {}".format(so_file.path, new_so_file.path))
 
     ctx.actions.run_shell(
@@ -68,7 +68,8 @@ def _library_transition_rule_impl(ctx):
                                              ctx=ctx,
                                              cc_toolchain=current_toolchain),
                                      cc_toolchain=current_toolchain,
-                                     dynamic_library=new_so_file)]
+                                     dynamic_library=new_so_file,
+                                     dynamic_library_symlink_path="import/libprotobuf.so")]
 
     return [
         CcInfo(
