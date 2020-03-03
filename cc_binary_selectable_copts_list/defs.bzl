@@ -8,12 +8,15 @@ _binary_copt_transition = transition(
 )
 
 def _library_copt_transition_impl(settings, attr):
-    features = []
+    feats = []
+    print("Original features: ", settings["//custom_settings:mycopts"])
     for feat in settings["//custom_settings:mycopts"]:
         if feat in attr.capabilities:
-            features.append(feat)
+            feats.append(feat)
+    feats.append("unset")
+    print("New features: ", feats)
 
-    return {"//custom_settings:mycopts": features}
+    return {"//custom_settings:mycopts": feats}
 
 _library_copt_transition = transition(
     implementation = _library_copt_transition_impl,
@@ -46,9 +49,37 @@ def _binary_transition_rule_impl(ctx):
 
 def _library_transition_rule_impl(ctx):
     actual_library = ctx.attr.actual_library[0]
-    #print(actual_library[CcInfo])
+    libraries_to_link = actual_library[CcInfo].linking_context.libraries_to_link.to_list()
+    so_file = libraries_to_link[1].dynamic_library
+    new_so_file = ctx.actions.declare_file(so_file.short_path)
+    print("Creating action to copy {} to {}".format(so_file.path, new_so_file.path))
 
-    return [ actual_library[CcInfo] ]
+    ctx.actions.run_shell(
+        inputs = [so_file],
+        outputs = [new_so_file],
+        command = "cp %s %s" % (so_file.path, new_so_file.path),
+    )
+
+    current_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
+    new_libraries_to_link = [libraries_to_link[0],
+                             cc_common.create_library_to_link(
+                                     actions=ctx.actions,
+                                     feature_configuration=cc_common.configure_features(
+                                             ctx=ctx,
+                                             cc_toolchain=current_toolchain),
+                                     cc_toolchain=current_toolchain,
+                                     dynamic_library=new_so_file)]
+
+    return [
+        CcInfo(
+            compilation_context = actual_library[CcInfo].compilation_context,
+            linking_context = cc_common.create_linking_context(
+                    additional_inputs = actual_library[CcInfo].linking_context.additional_inputs.to_list(),
+                    libraries_to_link = new_libraries_to_link,
+                    user_link_flags = actual_library[CcInfo].linking_context.user_link_flags,
+            )
+        )
+    ]
 
 # The purpose of this rule is to take a "set_features" attribute,
 # invoke a transition that sets --//custom_settings:mycopts to the
@@ -74,6 +105,7 @@ binary_transition_rule = rule(
 
 library_transition_rule = rule(
     implementation = _library_transition_rule_impl,
+    fragments = ["cpp"],
     attrs = {
         # This is where the user can set the feature they want.
         "capabilities": attr.string_list(default = []),
@@ -81,6 +113,11 @@ library_transition_rule = rule(
         "_whitelist_function_transition": attr.label(
             default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
         ),
+        "_cc_toolchain": attr.label(
+                default = Label(
+                    "@rules_cc//cc:current_cc_toolchain", # copybara-use-repo-external-label
+                ),
+            ),
     },
 )
 
