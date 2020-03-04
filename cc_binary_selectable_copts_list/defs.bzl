@@ -7,13 +7,21 @@ _binary_copt_transition = transition(
     outputs = ["//custom_settings:mycopts"],
 )
 
+def _import_copt_transition_impl(settings, attr):
+    return {"//custom_settings:mycopts": []}
+
+_import_copt_transition = transition(
+    implementation = _import_copt_transition_impl,
+    inputs = [],
+    outputs = ["//custom_settings:mycopts"],
+)
+
 def _library_copt_transition_impl(settings, attr):
     feats = []
     print("Original features: ", settings["//custom_settings:mycopts"])
     for feat in settings["//custom_settings:mycopts"]:
         if feat in attr.capabilities:
             feats.append(feat)
-    feats.append("unset")
     print("New features: ", feats)
 
     return {"//custom_settings:mycopts": feats}
@@ -47,8 +55,16 @@ def _binary_transition_rule_impl(ctx):
         ),
     ]
 
+def _import_transition_rule_impl(ctx):
+    actual_import = ctx.attr.actual_import[0]
+    print(actual_import)
+    return [actual_import[CcInfo]]
+
 def _library_transition_rule_impl(ctx):
     actual_library = ctx.attr.actual_library[0]
+    if False:
+        return [actual_library[CcInfo]]
+
     libraries_to_link = actual_library[CcInfo].linking_context.libraries_to_link.to_list()
     so_file = libraries_to_link[1].dynamic_library
     new_so_file = ctx.actions.declare_file("import/libprotobuf.so")
@@ -104,6 +120,16 @@ binary_transition_rule = rule(
     executable = True,
 )
 
+import_transition_rule = rule(
+    implementation = _import_transition_rule_impl,
+    attrs = {
+        "actual_import": attr.label(cfg = _import_copt_transition),
+        "_whitelist_function_transition": attr.label(
+            default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
+        ),
+    },
+)
+
 library_transition_rule = rule(
     implementation = _library_transition_rule_impl,
     fragments = ["cpp"],
@@ -138,6 +164,19 @@ def cc_binary(name, set_features = [], **kwargs):
     )
     native.cc_binary(
         name = cc_binary_name,
+        **kwargs
+    )
+
+def cc_import(name, visibility, **kwargs):
+    cc_import_name = name + "_native_import"
+    import_transition_rule(
+        name = name,
+        actual_import = ":%s" % cc_import_name,
+        visibility = visibility,
+    )
+    native.cc_import(
+        name = cc_import_name,
+        visibility = visibility,
         **kwargs
     )
 
