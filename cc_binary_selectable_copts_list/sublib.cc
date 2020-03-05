@@ -1,7 +1,7 @@
 #include <iostream>
 
-void runlib() {
-  std::cout << "lib features:\n";
+void runsublib() {
+  std::cout << "sublib features:\n";
 #if defined(feature1)
   std::cout << "  + feature 1\n";
 #endif
@@ -12,5 +12,4 @@ void runlib() {
   std::cout << "  + feature 3\n";
 #endif
 }
-
 

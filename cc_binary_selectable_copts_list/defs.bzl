@@ -1,5 +1,20 @@
 def _binary_copt_transition_impl(settings, attr):
-    return {"//custom_settings:mycopts": attr.set_features + settings["//custom_settings:mycopts"]}
+    if attr.set_features:
+        # it's a binary
+        feats = attr.set_features[:]
+        print(attr.name + ": set_features: " + str(feats))
+    elif attr.capabilities:
+        if len(attr.capabilities) > 0 and attr.capabilities[0] == "_no_filter":
+            return {"//custom_settings:mycopts": settings["//custom_settings:mycopts"]}
+
+        # it's a shared library
+        feats = []
+        for feat in settings["//custom_settings:mycopts"]:
+            if feat in attr.capabilities:
+                feats.append(feat)
+        print(attr.name + ": Original features: " + str(settings["//custom_settings:mycopts"]) + " / New features: " + str(feats))
+
+    return {"//custom_settings:mycopts": feats}
 
 _binary_copt_transition = transition(
     implementation = _binary_copt_transition_impl,
@@ -7,22 +22,15 @@ _binary_copt_transition = transition(
     outputs = ["//custom_settings:mycopts"],
 )
 
-def _import_copt_transition_impl(settings, attr):
-    return {"//custom_settings:mycopts": []}
-
-_import_copt_transition = transition(
-    implementation = _import_copt_transition_impl,
-    inputs = [],
-    outputs = ["//custom_settings:mycopts"],
-)
-
 def _library_copt_transition_impl(settings, attr):
+    if len(attr.capabilities) > 0 and attr.capabilities[0] == "_no_filter":
+        return {"//custom_settings:mycopts": settings["//custom_settings:mycopts"]}
+
     feats = []
-    print("Original features: ", settings["//custom_settings:mycopts"])
     for feat in settings["//custom_settings:mycopts"]:
         if feat in attr.capabilities:
             feats.append(feat)
-    print("New features: ", feats)
+    print(attr.name + ": Original features: " + str(settings["//custom_settings:mycopts"]) + " / New features: " + str(feats))
 
     return {"//custom_settings:mycopts": feats}
 
@@ -53,50 +61,12 @@ def _binary_transition_rule_impl(ctx):
             executable = outfile,
             data_runfiles = actual_binary[DefaultInfo].data_runfiles,
         ),
+        actual_binary[CcInfo],
     ]
-
-def _import_transition_rule_impl(ctx):
-    actual_import = ctx.attr.actual_import[0]
-    print(actual_import)
-    return [actual_import[CcInfo]]
 
 def _library_transition_rule_impl(ctx):
     actual_library = ctx.attr.actual_library[0]
-    if False:
-        return [actual_library[CcInfo]]
-
-    libraries_to_link = actual_library[CcInfo].linking_context.libraries_to_link.to_list()
-    so_file = libraries_to_link[1].dynamic_library
-    new_so_file = ctx.actions.declare_file("import/libprotobuf.so")
-    print("Creating action to copy {} to {}".format(so_file.path, new_so_file.path))
-
-    ctx.actions.run_shell(
-        inputs = [so_file],
-        outputs = [new_so_file],
-        command = "cp %s %s" % (so_file.path, new_so_file.path),
-    )
-
-    current_toolchain = ctx.attr._cc_toolchain[cc_common.CcToolchainInfo]
-    new_libraries_to_link = [libraries_to_link[0],
-                             cc_common.create_library_to_link(
-                                     actions=ctx.actions,
-                                     feature_configuration=cc_common.configure_features(
-                                             ctx=ctx,
-                                             cc_toolchain=current_toolchain),
-                                     cc_toolchain=current_toolchain,
-                                     dynamic_library=new_so_file,
-                                     dynamic_library_symlink_path="import/libprotobuf.so")]
-
-    return [
-        CcInfo(
-            compilation_context = actual_library[CcInfo].compilation_context,
-            linking_context = cc_common.create_linking_context(
-                    additional_inputs = actual_library[CcInfo].linking_context.additional_inputs.to_list(),
-                    libraries_to_link = new_libraries_to_link,
-                    user_link_flags = actual_library[CcInfo].linking_context.user_link_flags,
-            )
-        )
-    ]
+    return [actual_library[CcInfo]]
 
 # The purpose of this rule is to take a "set_features" attribute,
 # invoke a transition that sets --//custom_settings:mycopts to the
@@ -110,6 +80,7 @@ binary_transition_rule = rule(
     implementation = _binary_transition_rule_impl,
     attrs = {
         # This is where the user can set the feature they want.
+        "capabilities": attr.string_list(),
         "set_features": attr.string_list(default = []),
         "actual_binary": attr.label(cfg = _binary_copt_transition),
         "_whitelist_function_transition": attr.label(
@@ -120,22 +91,12 @@ binary_transition_rule = rule(
     executable = True,
 )
 
-import_transition_rule = rule(
-    implementation = _import_transition_rule_impl,
-    attrs = {
-        "actual_import": attr.label(cfg = _import_copt_transition),
-        "_whitelist_function_transition": attr.label(
-            default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
-        ),
-    },
-)
-
 library_transition_rule = rule(
     implementation = _library_transition_rule_impl,
     fragments = ["cpp"],
     attrs = {
         # This is where the user can set the feature they want.
-        "capabilities": attr.string_list(default = []),
+        "capabilities": attr.string_list(),
         "actual_library": attr.label(cfg = _library_copt_transition),
         "_whitelist_function_transition": attr.label(
             default = "@bazel_tools//tools/whitelists/function_transition_whitelist",
@@ -155,11 +116,12 @@ library_transition_rule = rule(
 # The result is a wrapper over cc_binary that "magically" gives it a new
 # feature-setting attribute. The only difference for a BUILD user is they need
 # to load() this at the top of the BUILD file.
-def cc_binary(name, set_features = [], **kwargs):
-    cc_binary_name = name + "_native_binary"
+def cc_binary(name, capabilities = ["_no_filter"], set_features = [], **kwargs):
+    cc_binary_name = "native_binary_" + name
     binary_transition_rule(
         name = name,
         actual_binary = ":%s" % cc_binary_name,
+        capabilities = capabilities,
         set_features = set_features,
     )
     native.cc_binary(
@@ -167,21 +129,8 @@ def cc_binary(name, set_features = [], **kwargs):
         **kwargs
     )
 
-def cc_import(name, visibility, **kwargs):
-    cc_import_name = name + "_native_import"
-    import_transition_rule(
-        name = name,
-        actual_import = ":%s" % cc_import_name,
-        visibility = visibility,
-    )
-    native.cc_import(
-        name = cc_import_name,
-        visibility = visibility,
-        **kwargs
-    )
-
-def cc_library(name, capabilities = [], **kwargs):
-    cc_library_name = name + "_native_library"
+def cc_library(name, capabilities = ["_no_filter"], **kwargs):
+    cc_library_name = "native_library_" + name
     library_transition_rule(
         name = name,
         actual_library = ":%s" % cc_library_name,
