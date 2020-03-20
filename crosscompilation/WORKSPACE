@@ -1,0 +1,5 @@
+new_local_repository(
+    name = "avr_tools",
+    path = "/usr",
+    build_file = '//:avr_tools.BUILD',
+)
