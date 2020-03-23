@@ -9,6 +9,21 @@ filegroup(
     ]),
 )
 
+# filegroup(
+#     name = "bin_folder",
+#     srcs = ["bin"],
+# )
+# 
+# filegroup(
+#     name = "lib_avr_folder",
+#     srcs = ["lib/avr"],
+# )
+# 
+# filegroup(
+#     name = "lib_gcc_avr_folder",
+#     srcs = ["lib/gcc/avr/5.4.0"],
+# )
+
 filegroup(
     name = "gcc",
     srcs = ["bin/avr-gcc"],

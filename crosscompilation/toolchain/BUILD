@@ -4,9 +4,6 @@ load(":cc_toolchain_config.bzl", "cc_toolchain_config")
 
 cc_toolchain_config(
     name = "avr_toolchain_config",
-    bin = "/usr/bin",
-    lib_avr = "/usr/lib/avr",
-    lib_gcc_avr = "/usr/lib/gcc/avr/5.4.0",
 )
 
 cc_toolchain(

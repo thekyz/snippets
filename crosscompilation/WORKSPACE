@@ -3,3 +3,14 @@ new_local_repository(
     path = "/usr",
     build_file = '//:avr_tools.BUILD',
 )
+
+# HTTP archive toolchain not working: https://github.com/bazelbuild/bazel/issues/7746
+
+# load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+# 
+# http_archive(
+#   name = "avr_tools",
+#   urls = ["https://gitlab.com/qdeliens/temp-repo-public/-/raw/master/avr_tools.tar.xz"],
+#   sha256 = "c9110fedee867384636e274cf0afe3bb00cba651e39dc2aa0d77bcbffb7faf5c",
+#   build_file = "//:avr_tools.BUILD",
+# )
