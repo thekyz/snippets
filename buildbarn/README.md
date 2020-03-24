@@ -20,6 +20,8 @@ The interactive buildbarn browser can be found at http://localhost:7984/.
 
 ### Client set-up
 
+>  **Make sure to use Bazel version 1.2.1**
+
 On the client side, some configuration needs to be done in order to build remotely.
 
 Add RBE rules to WORKSPACE file:
@@ -61,8 +63,8 @@ build:rbe-ubuntu16-04 --cpu=k8
 build:rbe-ubuntu16-04 --host_cpu=k8
 
 # Environment
-build:mycluster --bes_backend=grpc://localhost:8985
-build:mycluster --bes_results_url=http://localhost:7984/build_events/bb-event-service/
+# build:mycluster --bes_backend=grpc://localhost:8985
+# build:mycluster --bes_results_url=http://localhost:7984/build_events/bb-event-service/
 build:mycluster --remote_executor=grpc://localhost:8980
 build:mycluster --remote_instance_name=remote-execution
 
@@ -71,8 +73,11 @@ build:mycluster-ubuntu16-04 --config=rbe-ubuntu16-04
 build:mycluster-ubuntu16-04 --jobs=64
 ```
 
+>  Note: the build event service (bes) will be removed in future releases
+   (https://github.com/buildbarn/bb-browser/issues/21), as such, the client options
+   regarding it are commented out.
+
 Then the client can build remotely using:
 ```
 bazel build --config=mycluster-ubuntu16-04 //main-package:main-rule
 ```
-
