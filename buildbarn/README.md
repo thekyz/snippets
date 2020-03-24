@@ -18,9 +18,12 @@ When everything has succesfully started, the buildbarn is up and running.
 
 The interactive buildbarn browser can be found at http://localhost:7984/.
 
-### Client set-up
+Urls to action event reports are printed to the terminal, e.g.:
+```
+worker-ubuntu16-04_1  | 2020/03/24 19:12:10 Action: http://localhost:7984/action/remote-execution/c54220819e25976aaf10b911eb5c1259bc7c25ebeef3c1fd2c2a11922c396638/142/
+```
 
->  **Make sure to use Bazel version 1.2.1**
+### Client set-up
 
 On the client side, some configuration needs to be done in order to build remotely.
 
