@@ -1,1 +1,2 @@
 build --workspace_status_command=scripts/build_status_command.sh
+build --remote_cache=grpc://127.0.0.1:9092
