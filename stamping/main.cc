@@ -1,4 +1,4 @@
-#include "stamp_lib.h"
+#include "linkstamp/stamp_lib.h"
 
 #include <iostream>
 
