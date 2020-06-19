@@ -1,0 +1,10 @@
+// This is a generated file
+
+#ifndef BUILD_INFO_H_
+#define BUILD_INFO_H_
+
+{% for build_info in build_data %}
+#define {{ build_info }} {{ build_data[build_info] }}
+{% endfor %}
+
+#endif // BUILD_INFO_H_

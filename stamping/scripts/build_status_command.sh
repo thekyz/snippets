@@ -20,3 +20,6 @@ else
     tree_status="Modified"
 fi
 echo "BUILD_SCM_STATUS ${tree_status}"
+
+echo "BUILD_CUSTOM_ID_V $(date +%s)"
+echo "BUILD_CUSTOM_ID_F 0xdeadbeef"
