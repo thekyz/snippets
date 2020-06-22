@@ -106,6 +106,15 @@ def genrule(name, outs, cmd, visibility=["//visibility:private"], **kwargs):
         native_cmd = native_cmd.replace("$(location " + out + ")",
                                         "$(location " + native_out + ")")
     native_cmd = native_cmd.replace("$(RULEDIR)", "$(RULEDIR)/" + NATIVE_GENRULE_DIR)
+    if "$(@D)" in native_cmd:
+        # Mimic native rule logic
+        if len(outs) == 1:
+            out_subdir = outs[0].rsplit("/", 1)[0]
+            native_cmd = native_cmd.replace("$(@D)",
+                                            "$(RULEDIR)/" + NATIVE_GENRULE_DIR + "/" + out_subdir)
+        else:
+            native_cmd = native_cmd.replace("$(@D)", "$(@D)/" + NATIVE_GENRULE_DIR)
+
     native.genrule(
         name = genrule_name,
         outs = native_outs,
