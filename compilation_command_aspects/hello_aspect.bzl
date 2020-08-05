@@ -15,6 +15,7 @@ def _hello_base_aspect_impl(target, ctx):
                     srcs.append(input)
             cmds.append(' '.join(action.argv))
     for dep in ctx.rule.attr.deps:
+        srcs.extend(dep[HelloBaseInfo].srcs)
         cmds.extend(dep[HelloBaseInfo].cmds)
 
     return [
