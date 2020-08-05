@@ -1,29 +1,21 @@
 HelloBaseInfo = provider(
     fields = {
-        'srcs': 'all compiled files',
-        'cmds': 'all compilation commands',
+        'src_cmd_mapping': 'mapping from source file to their compilation command',
     }
 )
 
 def _hello_base_aspect_impl(target, ctx):
-    srcs = []
-    cmds = []
+    src_cmd_mapping = {}
     for action in target.actions:
         if action.mnemonic == 'CppCompile':
             for input in action.inputs.to_list():
                 if input.extension == 'c' or input.extension == 'cpp':
-                    srcs.append(input)
-            cmds.append(' '.join(action.argv))
+                    break
+            src_cmd_mapping[input] = ' '.join(action.argv)
     for dep in ctx.rule.attr.deps:
-        srcs.extend(dep[HelloBaseInfo].srcs)
-        cmds.extend(dep[HelloBaseInfo].cmds)
+        src_cmd_mapping.update(dep[HelloBaseInfo].src_cmd_mapping)
 
-    return [
-        HelloBaseInfo(
-            srcs = srcs,
-            cmds = cmds,
-        )
-    ]
+    return [HelloBaseInfo(src_cmd_mapping=src_cmd_mapping)]
 
 hello_base_aspect = aspect(
     implementation = _hello_base_aspect_impl,
@@ -32,16 +24,15 @@ hello_base_aspect = aspect(
 
 def _hello_base_rule_impl(ctx):
     outfiles = []
-    info = ctx.attr.library[HelloBaseInfo]
-    for i in range(len(info.cmds)):
-        src = info.srcs[i]
+    src_cmd_mapping = ctx.attr.library[HelloBaseInfo].src_cmd_mapping
+    for src in src_cmd_mapping:
         outfile = ctx.actions.declare_file(src.basename + '.base', sibling=src)
         ctx.actions.run(
             inputs = [src],
             outputs = [outfile],
             tools = [ctx.executable._hello_base],
             executable = ctx.executable._hello_base,
-            arguments = [src.path, info.cmds[i], outfile.path],
+            arguments = [src.path, src_cmd_mapping[src], outfile.path],
             mnemonic = 'HelloBase',
         )
         outfiles.append(outfile)
