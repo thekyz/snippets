@@ -6,7 +6,8 @@ cc_library(
         "main.c"
     ],
     deps = [
-        "//lib:export"
+        "//lib:export",
+        "//main/submain",
     ],
     visibility = ["//visibility:public"],
 )
@@ -14,5 +15,8 @@ cc_library(
 hello_base_rule(
     name = "hello_for_main",
     library = ":main",
+    deps = [
+        "//main/submain:hello_for_submain"
+    ],
     visibility = ["//visibility:public"],
 )

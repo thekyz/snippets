@@ -1,8 +1,9 @@
 #include <stdio.h>
+#include <submain/submain.h>
 #include <lib/lib.h>
 
 int main(void) {
-    printf("Hello from main\n");
+    saymain();
     sayhi();
 
     return 0;
