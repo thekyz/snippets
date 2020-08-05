@@ -1,0 +1,1 @@
+bazel build :hello_for_app
