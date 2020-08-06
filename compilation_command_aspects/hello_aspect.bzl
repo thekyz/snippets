@@ -35,6 +35,7 @@ def _hello_base_rule_impl(ctx):
             executable = ctx.executable._hello_base,
             arguments = [src.path, src_cmd_mapping[src], outfile.path],
             mnemonic = 'HelloBase',
+            progress_message = "Hello basing " + src.path,
         )
         outfiles.append(outfile)
     return [DefaultInfo(files = depset(outfiles))]
@@ -63,6 +64,7 @@ def _hello_gather_rule_impl(ctx):
         executable = ctx.executable._hello_gather,
         arguments = [i.path for i in inputs] + [outfile.path],
         mnemonic = 'HelloGather',
+        progress_message = "Hello gathering " + ctx.attr.name,
     )
     return [DefaultInfo(files = depset([outfile]))]
 
