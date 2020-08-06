@@ -11,12 +11,6 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-hello_base_rule(
-    name = "hello_for_submain",
-    library = ":submain",
-    visibility = ["//visibility:public"],
-)
-
 cc_library(
     name = "export",
     hdrs = [

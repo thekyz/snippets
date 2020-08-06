@@ -13,10 +13,14 @@ def _hello_base_aspect_impl(target, ctx):
                     break
             src_cmd_mapping[input] = ' '.join(action.argv)
 
+    for dep in ctx.rule.attr.deps:
+        src_cmd_mapping.update(dep[HelloBaseInfo].src_cmd_mapping)
+
     return [HelloBaseInfo(src_cmd_mapping=src_cmd_mapping)]
 
 hello_base_aspect = aspect(
     implementation = _hello_base_aspect_impl,
+    attr_aspects = ['deps']
 )
 
 def _hello_base_rule_impl(ctx):
@@ -33,15 +37,12 @@ def _hello_base_rule_impl(ctx):
             mnemonic = 'HelloBase',
         )
         outfiles.append(outfile)
-    for dep in ctx.attr.deps:
-        outfiles.extend(dep.files.to_list())
     return [DefaultInfo(files = depset(outfiles))]
 
 hello_base_rule = rule(
     implementation = _hello_base_rule_impl,
     attrs = {
         'library': attr.label(aspects = [hello_base_aspect]),
-        'deps': attr.label_list(),
         '_hello_base': attr.label(
             executable = True,
             cfg = 'host',
