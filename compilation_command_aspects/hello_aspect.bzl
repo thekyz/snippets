@@ -11,7 +11,7 @@ def _hello_base_aspect_impl(target, ctx):
             for input in action.inputs.to_list():
                 if input.extension == 'c' or input.extension == 'cpp':
                     break
-            src_cmd_mapping[input] = ' '.join(action.argv)
+            src_cmd_mapping[input] = action.args
 
     for dep in ctx.rule.attr.deps:
         src_cmd_mapping.update(dep[HelloBaseInfo].src_cmd_mapping)
@@ -33,7 +33,8 @@ def _hello_base_rule_impl(ctx):
             outputs = [outfile],
             tools = [ctx.executable._hello_base],
             executable = ctx.executable._hello_base,
-            arguments = [src.path, src_cmd_mapping[src], outfile.path],
+            arguments = ['--source', src.path, '--output', outfile.path,
+                         '--command'] + src_cmd_mapping[src],
             mnemonic = 'HelloBase',
             progress_message = "Hello basing " + src.path,
         )
