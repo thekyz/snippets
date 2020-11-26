@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: bazel-build
+    steps:
+      - name: Checkout
+      - uses: actions/checkout@v2
+
+      - name: hello-build
+        uses: ./
+        id: hello
+        with:
+          bazel-version: 3.7.0
