@@ -1,0 +1,5 @@
+#!/bin/bash
+TOOL=$(basename "$0")
+TOOLCHAIN_BIN_PATH=external/gcc-arm-x86_64-aarch64_be-linux-gnu/bin
+
+exec "${TOOLCHAIN_BIN_PATH}/${TOOL}" "$@"

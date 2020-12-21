@@ -1,0 +1,2 @@
+load("//toolchains:externals.bzl", "download_toolchains")
+download_toolchains()
