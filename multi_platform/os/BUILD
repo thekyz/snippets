@@ -5,3 +5,8 @@ constraint_value(
     constraint_setting = ":os",
     visibility = ["//visibility:public"],
 )
+constraint_value(
+    name = "mac",
+    constraint_setting = ":os",
+    visibility = ["//visibility:public"],
+)

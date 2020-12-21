@@ -1,13 +1,13 @@
 constraint_setting(name = "cpu")
 
 constraint_value(
-    name = "ppc",
+    name = "arm",
     constraint_setting = ":cpu",
     visibility = ["//visibility:public"],
 )
 
 constraint_value(
-    name = "x86",
+    name = "mac",
     constraint_setting = ":cpu",
     visibility = ["//visibility:public"],
 )
