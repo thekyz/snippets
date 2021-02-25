@@ -1,0 +1,17 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "dbx_build_tools",
+    urls = ["https://github.com/dropbox/dbx_build_tools/archive/ff7a2d3b51c7b8029323d610ee16d4da01f20db7.tar.gz"],
+    sha256 = "c23d2a19f10bff2a0defca04e077117731f9a06f5d8e0e899a1c88929f35c594",
+    strip_prefix = "dbx_build_tools-ff7a2d3b51c7b8029323d610ee16d4da01f20db7",
+)
+
+load('@dbx_build_tools//build_tools/bazel:external_workspace.bzl', 'drte_deps')
+
+drte_deps()
+
+register_toolchains(
+    "@dbx_build_tools//thirdparty/cpython:drte-off-27-toolchain",
+    "@dbx_build_tools//thirdparty/cpython:drte-off-38-toolchain",
+)
