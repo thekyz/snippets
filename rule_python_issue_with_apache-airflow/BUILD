@@ -1,0 +1,33 @@
+load("@pip//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:defs.bzl", "py_runtime_pair")                                                                                                                            
+
+py_runtime(
+    name = "python3_runtime",
+    files = ["@python_interpreter//:files"],
+    interpreter = "@python_interpreter//:python_bin",
+    python_version = "PY3",
+    visibility = ["//visibility:public"],
+)
+
+py_runtime_pair(
+    name = "my_py_runtime_pair",
+    py2_runtime = None,
+    py3_runtime = ":python3_runtime",
+)
+
+toolchain(
+    name = "my_py_toolchain",
+    toolchain = ":my_py_runtime_pair",
+    toolchain_type = "@bazel_tools//tools/python:toolchain_type",
+)
+
+py_binary(
+    name = "hello",
+    srcs = [
+        "hello.py",
+    ],
+    deps = [
+        requirement("apache-airflow[postgres,statsd,kubernetes]"),
+    ],
+)
