@@ -1,0 +1,4 @@
+build --incompatible_strict_action_env
+build --host_platform=@io_tweag_rules_nixpkgs//nixpkgs/platforms:host
+build --action_env=NIXPKGS_ALLOW_UNFREE=1
+build --action_env=TORCH_CUDA_ARCH_LIST="8.6+PTX"
