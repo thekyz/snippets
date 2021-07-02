@@ -1,0 +1,5 @@
+// THIS IS A GENERATED FILE, SOURCE DATA COMES FROM //:BUILD
+
+#pragma once
+
+#define CONFIG_SITE "site"
